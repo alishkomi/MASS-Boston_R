@@ -1,0 +1,127 @@
+---
+author: "Alisher Komilov"
+date: "1/24/2021"
+output: html_document
+---
+
+# Step 1
+The library Boston provides data for housing values in Suburbs of Boston. The library contains 506 rows and 14 columns. The columns of this data frame include per capita crime(crim) rate by town, pupil-teach(ptratio) ratio by town, and others.
+```{r}
+library(MASS)
+data(Boston)
+str(Boston)
+```
+
+# Step 2
+
+```{r}
+head(Boston, n=5) #First five rows
+tail(Boston, n=2) #Last two rows
+Boston[5,] #5th row
+head(Boston[1], n=5) #First 5 rows of column 1
+names(Boston) #Displays variable names
+```
+
+# Step 3
+```{r}
+mean(Boston$crim) #Mean of crime rate statistics
+median(Boston$crim) #Median of crime rate statistics
+range(Boston$crim) #Range of crime rate statistics where first value is min and second is max
+max(Boston[,1])-min(Boston[,1]) #Mathematical range of crime column
+```
+
+# Step 4
+Below is a histogram graph for crime part of the Boston library data frame. This graph tells us that majority of rows
+fall into the range of 20 and below. In other words, majority of neighborhoods have 20 or less crimes per thousand people.
+```{r}
+hist(Boston$crim,
+     main="Histogram for Per Capita Crime Rate by Town",
+     xlab ="Crime",
+     ylim = c(0, 490),
+     xlim = c(0, 100))
+```
+
+# Step 5
+In a relationship between crime rate and median value of homes, the negative correlation value shows that there is a moderate inverse 
+relationship between the two. Which means that in places where the crime rate is high, the median value of homes is moderately low.
+Therefore, using crime rate statistics to predict the median value of a house is likely to improve its accuracy.
+```{r}
+cor(Boston$crim, Boston$medv) #Correlation value between crime rate and median value of homes.
+```
+
+# Step 6
+From the graph below we can derive to a conclusion that in most cases the value of a house is higher if it has more rooms. This is confirmed by the correlation coefficient. It is moderately likely that number of rooms determines the house's value.
+```{r}
+x <- Boston$rm
+y <- Boston$medv
+plot(x, y,
+     main = "Number of Rooms vs Median Value of Homes",
+     xlab = "Number of Rooms",
+     ylab = "Median  Value(in thousands)",
+     pch = 5,
+     col = 258)
+cor(x, y) #Correlation coefficient
+```
+
+# Step 7
+While the first graph depicts the raw data relationship between median value of houses and Charles River's dummy value, 
+the second graph shows the concentration of data. By looking at the second graph, we are able to make the conclusion that
+if an area in which the neighborhood is located in tracts a river, the median value of houses is slightly higher compared to
+those that are not.The second graph also shows the outliers(values that fall outside of other values of the data set). 
+```{r}
+if (is.factor(Boston$chas)==FALSE) {
+  print('Variable chas is not a factor')
+  plot(Boston$chas, Boston$medv,
+       main = "Median Value vs Chas",
+       xlab = "Charles River dummy variable",
+       ylab = "Median Value",
+       )
+}
+z <- as.factor(Boston$chas)
+plot(z, Boston$medv,
+       main = "Median Value vs Chas",
+       xlab = "Charles River dummy variable",
+       ylab = "Median Value",
+       )
+```
+
+# Step 8
+A higher index of accessibility to radial highways means better accessibility, and vice versa. Rad is an integer variable with minimum value
+of 1, median value of 5, mean value of 9.549, and maximum value of 24. By looking at the unique values of the library we observe that there are
+instances of index values of 1, 2, 3, 4, 5, 6, 7, 8, and 24. 
+```{r}
+summary(Boston$rad) #Summary of the rad column
+unique(Boston$rad) #Unique values in rad column
+rad_sum <- sum(Boston$rad == 24) #Number of neighborhoods with rad index of 24
+cat(rad_sum, "Instances")
+n_rows <- nrow(Boston)
+cat((rad_sum/n_rows)*100, "percent of all neighborhoods.")
+```
+
+# Step 9
+The graph below shows the relationship between houses with better and worse access to radial highways, and median value of houses. From this graph we can tell that if a neighborhood has a higher access to radial highways,
+the median value of houses is lower compared to those with lower.
+```{r}
+Boston$far <- ifelse(Boston$rad == 24,TRUE, FALSE)
+Boston$far <- as.factor(Boston$far)
+plot(Boston$far, 
+     Boston$medv,
+     main = 'Far vs. Medv',
+     xlab = 'Far',
+     ylab = 'Medv')
+```
+
+# Step 10
+The neighborhood with the highest median value is on row 162. The crime rate per capita at this neighborhood is below city average.
+At 7.489 rooms per house, this neighborhood has above average and more than 3/4 of the whole city room count per house.
+This neighborhood is also placed at the lowest percentage of lower status of the population in the neighborhood.
+```{r}
+q10data <- Boston[,c(1,6,13,14)] #Split required columns into a different table
+summary(q10data) #Get the summary of required columns
+q10data[which.max(q10data$medv),] #Find and print the data for the highest median value neighborhood
+```
+
+# Step 11
+```{r}
+write.csv(Boston[,c(6, 14)], file ="data.csv", row.names = FALSE) #Exporting only rm and medv columns of the Boston library to data.csv file without index
+```
